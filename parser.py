@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 
 
-class ArgumentParser:
+class ArgParser:
     def __init__(self):
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument('--fromm', '--from', required=False)
@@ -20,11 +20,11 @@ class ArgumentParser:
         self.to_arg = args.to
         self.file = args.file
         if self.from_arg:
-            self.parse_time_frame('from')
+            self.convert_time_frame('from')
         if self.to_arg:
-            self.parse_time_frame('to')
+            self.convert_time_frame('to')
 
-    def parse_time_frame(self, from_to: str) -> None:
+    def convert_time_frame(self, from_to: str) -> None:
         time_frame = {
             'from': {
                 'day': 00,
@@ -76,7 +76,8 @@ class ArgumentParser:
             self.time_window[from_to] = datetime.strptime(from_to_time, '%d %m %Y %H %M %S')
         except ValueError as e:
             # If the from/to format doesn't match correct format, the value remain None
-            print('Please provide correct from/to values (eg. 23-12-1999_23-11-55)')
+            print(f"Please provide correct {from_to} values (eg. 23-12-1999_23-11-55)\n"
+                  f"{from_to} scope won't be specified")
 
     def return_arguments(self):
         return self.time_window['from'], self.time_window['to'], self.file
@@ -120,19 +121,20 @@ class Logg:
                 # if 'to' value is None, first log entry is assigned (first is the most recent)
                 self.time_window['to'] = log_date_datetime
             if not self.time_window['from']:
-                # if 'from' value is assigned, unix epoch beginning time is assigned
+                # if 'from' value is None, unix epoch beginning time is assigned :)
                 self.time_window['from'] = datetime.strptime('01 01 1970', '%d %m %Y')
             validation_status = self.time_window['from'] <= log_date_datetime <= self.time_window['to']
+            # print(validation_status)
             if validation_status:
                 if not self.time_window['last']:
-                    # first date value which match the condition is assigned as a 'first' date value for 'request_per_sec'
+                    # first date value which match the condition is assigned as 'first' date value for 'request_per_sec'
                     self.time_window['last'] = log_date_datetime
-                # last date value which match the condition is assigned as a 'last' value for 'request_per_sec'
+                # last date value which match the condition is assigned as 'last' value for 'request_per_sec'
                 self.time_window['first'] = log_date_datetime
-                return validation_status
+            return validation_status
         except AttributeError:
             # date not in the log entry (eg. first log row)
-            pass
+            return False
 
     def look_for_responses(self, line: str) -> None:
         response_regex = re.compile(r'(?<=\s)\d{3}(?=\s)')
@@ -162,7 +164,10 @@ class Logg:
             self.output['avg_2xx_size'] = 0
 
     def count_requests_per_second(self):
-        seconds = self.time_window['last'] - self.time_window['first']
+        try:
+            seconds = self.time_window['last'] - self.time_window['first']
+        except TypeError:
+            raise TypeError('Given from/to dates are invalid')
         req_per_sec = self.output['requests'] / seconds.total_seconds()
         self.output['requests_per_seconds'] = f"{req_per_sec:.1f}"
 
@@ -173,15 +178,19 @@ class Logg:
         avg = f"avg size of 2xx responses:" \
               f" {self.output['avg_2xx_size']*10**(-6):.2f} Mb" \
               f" ({round(self.output['avg_2xx_size'])} bytes)"
-        print("\n".join([requests, req_per_sec, responses, avg]))
+        avg_str = "\n".join([requests, req_per_sec, responses, avg])
+        return avg_str
 
 
 if __name__ == "__main__":
-    argument_parser = ArgumentParser()
+    argument_parser = ArgParser()
     argument_parser.check_arguments()
     from_arg, to_arg, file = argument_parser.return_arguments()
 
     logg = Logg(file, from_arg, to_arg)
     logg.open_file()
 
-    logg.display_output()
+    print(logg.display_output())
+    print(logg.output)
+
+
