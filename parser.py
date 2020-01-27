@@ -19,10 +19,6 @@ class ArgumentParser:
         self.from_arg = args.fromm
         self.to_arg = args.to
         self.file = args.file
-        if self.from_arg or self.to_arg:
-            self.validate_time()
-
-    def validate_time(self):
         if self.from_arg:
             self.parse_time_frame('from')
         if self.to_arg:
@@ -79,7 +75,7 @@ class ArgumentParser:
                            f"{time_frame[from_to]['second']}"
             self.time_window[from_to] = datetime.strptime(from_to_time, '%d %m %Y %H %M %S')
         except ValueError as e:
-            # If the from/to format doesn't match correct format, value remain None
+            # If the from/to format doesn't match correct format, the value remain None
             print('Please provide correct from/to values (eg. 23-12-1999_23-11-55)')
 
     def return_arguments(self):
@@ -129,9 +125,9 @@ class Logg:
             validation_status = self.time_window['from'] <= log_date_datetime <= self.time_window['to']
             if validation_status:
                 if not self.time_window['last']:
-                    # first date value which match the condition is assign as a 'first' date value for 'request_per_sec'
+                    # first date value which match the condition is assigned as a 'first' date value for 'request_per_sec'
                     self.time_window['last'] = log_date_datetime
-                # last date value which match the condition is assign as a 'last' value for 'request_per_sec'
+                # last date value which match the condition is assigned as a 'last' value for 'request_per_sec'
                 self.time_window['first'] = log_date_datetime
                 return validation_status
         except AttributeError:
