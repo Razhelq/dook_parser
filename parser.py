@@ -3,92 +3,14 @@ import re
 from datetime import datetime
 
 
-class ArgParser:
-    def __init__(self):
-        self.parser = argparse.ArgumentParser()
-        self.parser.add_argument('--fromm', '--from', required=False)
-        self.parser.add_argument('--to', required=False)
-        self.parser.add_argument('file')
-        self.from_arg = None
-        self.to_arg = None
-        self.file = None
-        self.time_window = {'from': None, 'to': None}
-
-    def check_arguments(self):
-        args = self.parser.parse_args()
-        self.from_arg = args.fromm
-        self.to_arg = args.to
-        self.file = args.file
-        if self.from_arg:
-            self.convert_time_frame('from')
-        if self.to_arg:
-            self.convert_time_frame('to')
-
-    def convert_time_frame(self, from_to: str) -> None:
-        time_frame = {
-            'from': {
-                'day': 00,
-                'month': 00,
-                'year': 0000,
-                'hour': 00,
-                'minute': 00,
-                'second': 00
-            },
-            'to': {
-                'day': 00,
-                'month': 00,
-                'year': 0000,
-                'hour': 00,
-                'minute': 00,
-                'second': 00,
-            }
-        }
-        try:
-            # Splits from/to argument into date and time strings
-            if from_to == 'from':
-                date = self.from_arg.split('_')
-            elif from_to == 'to':
-                date = self.to_arg.split('_')
-            day, month, year = date[0].split('-')
-            time_frame[from_to]['day'] = day
-            time_frame[from_to]['month'] = month
-            time_frame[from_to]['year'] = year
-            try:
-                # check if the time part is provided
-                time = date[1].split('-')
-                for i in range(len(time)):
-                    if i == 0:
-                        time_frame[from_to]['hour'] = time[0]
-                    if i == 1:
-                        time_frame[from_to]['minute'] = time[1]
-                    if i == 2:
-                        time_frame[from_to]['second'] = time[2]
-            except IndexError:
-                # no time part argument provided
-                pass
-            # Parse dictionary values into datetime object
-            from_to_time = f"{time_frame[from_to]['day']} " \
-                           f"{time_frame[from_to]['month']} " \
-                           f"{time_frame[from_to]['year']} " \
-                           f"{time_frame[from_to]['hour']} " \
-                           f"{time_frame[from_to]['minute']} " \
-                           f"{time_frame[from_to]['second']}"
-            self.time_window[from_to] = datetime.strptime(from_to_time, '%d %m %Y %H %M %S')
-        except ValueError as e:
-            # If the from/to format doesn't match correct format, the value remain None
-            print(f"Please provide correct {from_to} values (eg. 23-12-1999_23-11-55)\n"
-                  f"{from_to} scope won't be specified")
-
-    def return_arguments(self):
-        return self.time_window['from'], self.time_window['to'], self.file
-
-
 class Logg:
     def __init__(self, file=None, from_arg=None, to_arg=None):
         self.file = file
+        self.from_arg = from_arg
+        self.to_arg = to_arg
         self.time_window = {
-            'from': from_arg,
-            'to': to_arg,
+            'from': None,
+            'to': None,
             'first': None,  # first date value required to count the requests_per_sec
             'last': None    # last date value required to count the requests_per_sec
         }
@@ -99,6 +21,76 @@ class Logg:
             '2xx_size': [0, 0],  # [how many values, overall size]
             'avg_2xx_size': 0
         }
+
+    def check_arguments(self):
+        if self.from_arg:
+            self.convert_time_frame('from')
+        if self.to_arg:
+            self.convert_time_frame('to')
+
+    def convert_time_frame(self, from_to: str) -> None:
+        time_frame = {
+            'from': {
+                'day': 1,
+                'month': 1,
+                'year': 1970,
+                'hour': 00,
+                'minute': 00,
+                'second': 00
+            },
+            'to': {
+                'day': 00,
+                'month': datetime.now().month,
+                'year': datetime.now().year,
+                'hour': 23,
+                'minute': 59,
+                'second': 59,
+            }
+        }
+        try:
+            # Splits from/to argument into date and time strings
+            if from_to == 'from':
+                date_time = self.from_arg.split('_')
+            elif from_to == 'to':
+                date_time = self.to_arg.split('_')
+            date = date_time[0].split('-')
+            for i in range(len(date)):
+                if i == 0:
+                    time_frame[from_to]['day'] = date[0]
+                if i == 1:
+                    time_frame[from_to]['month'] = date[1]
+                if i == 2:
+                    time_frame[from_to]['year'] = date[2]
+        except ValueError as e:
+            # If the from/to format doesn't match correct format, the value remain None
+            print(f"Please provide correct {from_to} values (eg. 23-12-1999_23-11-55)\n"
+                  f"{from_to} scope won't be specified")
+        try:
+            # check if the time part is provided
+            time = date_time[1].split('-')
+            for i in range(len(time)):
+                if i == 0:
+                    if len(time) == 1:
+                        time_frame[from_to]['minute'] = 00
+                        time_frame[from_to]['second'] = 00
+                    time_frame[from_to]['hour'] = time[0]
+                if i == 1:
+                    if len(time) == 2:
+                        time_frame[from_to]['second'] = 00
+                    time_frame[from_to]['minute'] = time[1]
+                if i == 2:
+                    time_frame[from_to]['second'] = time[2]
+        except IndexError:
+            print(f"\"{from_to}\" time part was not provided")
+        # Parse dictionary values into datetime object
+        from_to_time = f"{time_frame[from_to]['day']} " \
+                       f"{time_frame[from_to]['month']} " \
+                       f"{time_frame[from_to]['year']} " \
+                       f"{time_frame[from_to]['hour']} " \
+                       f"{time_frame[from_to]['minute']} " \
+                       f"{time_frame[from_to]['second']}"
+        self.time_window[from_to] = datetime.strptime(from_to_time, '%d %m %Y %H %M %S')
+        print(self.time_window[from_to])
 
     def open_file(self):
         with open(self.file, 'r') as logg:
@@ -183,11 +175,17 @@ class Logg:
 
 
 if __name__ == "__main__":
-    argument_parser = ArgParser()
-    argument_parser.check_arguments()
-    from_arg, to_arg, file = argument_parser.return_arguments()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('file')
+    parser.add_argument('--fromm', '--from', required=False)
+    parser.add_argument('--to', required=False)
+    args = parser.parse_args()
+    file = args.file
+    from_arg = args.fromm
+    to_arg = args.to
 
     logg = Logg(file, from_arg, to_arg)
+    logg.check_arguments()
     logg.open_file()
 
     print(logg.display_output())
