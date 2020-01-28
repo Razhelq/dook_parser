@@ -1,7 +1,7 @@
 # dook_parser
 
 
-Application was created with Python 3.8.1
+Application was created with Python 3.8.1.
 
 *How to run the application:*
 
@@ -17,7 +17,7 @@ Application takes up to 3 arguments using argparse library:
     required argument:
     --file  string with file name   'eg. gunicorn.log2'
 
-Tests are made in pytest. There are 4 use cases (without argument, with "from" only, with "to" only and with both)
+Tests are made in pytest. They require example gunicorn.log2 file in same directory. There are 4 use cases (without argument, with "from" only, with "to" only and with both)
 For each case there are setup modules which creates Logg objects and tests functions which tests all methods. 
 Tests could be merged but I decided to mark each use case separately to have a possibility to launch them separately.
 There are 4 marks: no_arg, fromm, fromm, from_to.
