@@ -19,31 +19,41 @@ def test_convert_time_frame(logg):
             'first': datetime.strptime('30 11 2019 09 07 18', '%d %m %Y %H %M %S'),
             'last': datetime.strptime('01 12 2019 11 06 07', '%d %m %Y %H %M %S')
         }
+    assert logg.time_window != {
+            'from': datetime.strptime('01 03 1970', '%d %m %Y'),
+            'to': datetime.strptime('01 12 2020 11 06 07', '%d %m %Y %H %M %S'),
+            'first': datetime.strptime('30 10 2019 09 07 18', '%d %m %Y %H %M %S'),
+            'last': datetime.strptime('01 12 2019 11 06 07', '%d %m %Y %H %M %S')
+        }
 
 
 @pytest.mark.no_args
 def test_requests(logg):
     assert logg.output['requests'] == 99999
+    assert logg.output['requests'] != 99232
 
 
 @pytest.mark.no_args
 def test_responses(logg):
     assert logg.output['responses'] == {'200': 96205, '404': 3794}
-
+    assert logg.output['responses'] != {'232': 96205, '404': 3794}
 
 @pytest.mark.no_args
 def test_2xx_size(logg):
     assert logg.output['2xx_size'] == [96205, 77519252]
+    assert logg.output['2xx_size'] != [9620213235, 77519252]
 
 
 @pytest.mark.no_args
 def test_count_avg_2xx_size(logg):
     assert logg.output['avg_2xx_size'] == 805.7715503352217
+    assert logg.output['avg_2xx_size'] != 343452217
 
 
 @pytest.mark.no_args
 def test_count_requests_per_seconds(logg):
     assert logg.output['requests_per_seconds'] == '1.1'
+    assert logg.output['requests_per_seconds'] != '12'
 
 
 @pytest.mark.no_args
@@ -85,31 +95,42 @@ def test_from_convert_time_frame(logg_with_from):
         'first': datetime.strptime('01 12 2019 11 06 04', '%d %m %Y %H %M %S'),
         'last': datetime.strptime('01 12 2019 11 06 07', '%d %m %Y %H %M %S')
     }
+    assert logg_with_from.time_window != {
+        'from': datetime.strptime('01 12 2019 11 06 04', '%d %m %Y %H %M %S'),
+        'to': datetime.strptime('01 12 2019 11 06 07', '%d %m %Y %H %M %S'),
+        'first': datetime.strptime('01 10 2019 11 06 04', '%d %m %Y %H %M %S'),
+        'last': datetime.strptime('01 12 2019 11 06 07', '%d %m %Y %H %M %S')
+    }
 
 
 @pytest.mark.fromm
 def test_from_requests(logg_with_from):
     assert logg_with_from.output['requests'] == 36
+    assert logg_with_from.output['requests'] != 232
 
 
 @pytest.mark.fromm
 def test_from_responses(logg_with_from):
     assert logg_with_from.output['responses'] == {'200': 36}
+    assert logg_with_from.output['responses'] != {'200': 323236}
 
 
 @pytest.mark.fromm
 def test_from_2xx_size(logg_with_from):
     assert logg_with_from.output['2xx_size'] == [36, 25920]
+    assert logg_with_from.output['2xx_size'] != [36, 2534920]
 
 
 @pytest.mark.fromm
 def test_from_count_avg_2xx_size(logg_with_from):
     assert logg_with_from.output['avg_2xx_size'] == 720.0
+    assert logg_with_from.output['avg_2xx_size'] != 7340.0
 
 
 @pytest.mark.fromm
 def test_from_count_requests_per_seconds(logg_with_from):
     assert logg_with_from.output['requests_per_seconds'] == '12.0'
+    assert logg_with_from.output['requests_per_seconds'] != '1'
 
 
 @pytest.mark.fromm
@@ -151,30 +172,42 @@ def test_to_convert_time_frame(logg_with_to):
             'first': datetime.strptime('30 11 2019 09 07 18', '%d %m %Y %H %M %S'),
             'last': datetime.strptime('30 11 2019 09 07 22', '%d %m %Y %H %M %S')
     }
+    assert logg_with_to.time_window != {
+        'from': datetime.strptime('01 01 1970', '%d %m %Y'),
+        'to': datetime.strptime('30 12 2019 09 07 22', '%d %m %Y %H %M %S'),
+        'first': datetime.strptime('30 11 2019 09 07 18', '%d %m %Y %H %M %S'),
+        'last': datetime.strptime('30 11 2019 09 07 22', '%d %m %Y %H %M %S')
+    }
 
 
 @pytest.mark.to
 def test_to_requests(logg_with_to):
     assert logg_with_to.output['requests'] == 47
+    assert logg_with_to.output['requests'] != 472
 
 
 @pytest.mark.to
 def test_to_responses(logg_with_to):
     assert logg_with_to.output['responses'] == {'404': 1, '200': 46}
+    assert logg_with_to.output['responses'] != {'40422': 1, '200': 46}
 
 
 @pytest.mark.to
 def test_to_2xx_size(logg_with_to):
     assert logg_with_to.output['2xx_size'] == [46, 33120]
+    assert logg_with_to.output['2xx_size'] != [436, 33122320]
 
 
+@pytest.mark.to
 def test_to_count_avg_2xx_size(logg_with_to):
     assert logg_with_to.output['avg_2xx_size'] == 720.0
+    assert logg_with_to.output['avg_2xx_size'] != 2323
 
 
 @pytest.mark.to
 def test_to_count_requests_per_seconds(logg_with_to):
     assert logg_with_to.output['requests_per_seconds'] == '11.8'
+    assert logg_with_to.output['requests_per_seconds'] != '11.54'
 
 
 @pytest.mark.to
@@ -216,31 +249,42 @@ def test_from_to_convert_time_frame(logg_with_from_to):
             'first': datetime.strptime('30 11 2019 09 07 22', '%d %m %Y %H %M %S'),
             'last': datetime.strptime('30 11 2019 09 10 14', '%d %m %Y %H %M %S')
     }
+    assert logg_with_from_to.time_window != {
+        'from': datetime.strptime('30 11 2020 09 07 22', '%d %m %Y %H %M %S'),
+        'to': datetime.strptime('30 11 2019 09 10 22', '%d %m %Y %H %M %S'),
+        'first': datetime.strptime('30 11 2019 09 07 22', '%d %m %Y %H %M %S'),
+        'last': datetime.strptime('30 11 2019 09 10 14', '%d %m %Y %H %M %S')
+    }
 
 
 @pytest.mark.from_to
 def test_from_to_requests(logg_with_from_to):
     assert logg_with_from_to.output['requests'] == 2046
+    assert logg_with_from_to.output['requests'] != 2046322
 
 
 @pytest.mark.from_to
 def test_from_to_responses(logg_with_from_to):
     assert logg_with_from_to.output['responses'] == {'200': 2023, '404': 23}
+    assert logg_with_from_to.output['responses'] != {'2220': 2023, '404': 23}
 
 
 @pytest.mark.from_to
 def test_from_to_2xx_size(logg_with_from_to):
     assert logg_with_from_to.output['2xx_size'] == [2023, 1553556]
+    assert logg_with_from_to.output['2xx_size'] != [2023, 15343453556]
 
 
 @pytest.mark.from_to
 def test_from_to_count_avg_2xx_size(logg_with_from_to):
     assert logg_with_from_to.output['avg_2xx_size'] == 767.9466139396935
+    assert logg_with_from_to.output['avg_2xx_size'] != 767.94661393934346935
 
 
 @pytest.mark.from_to
 def test_from_to_count_requests_per_seconds(logg_with_from_to):
     assert logg_with_from_to.output['requests_per_seconds'] == '11.9'
+    assert logg_with_from_to.output['requests_per_seconds'] != '114.9'
 
 
 @pytest.mark.from_to
