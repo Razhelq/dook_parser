@@ -61,7 +61,7 @@ class Logg:
                     time_frame[from_to]['month'] = date[1]
                 if i == 2:
                     time_frame[from_to]['year'] = date[2]
-        except ValueError as e:
+        except ValueError:
             # If the from/to format doesn't match correct format, the value remain None
             print(f"Please provide correct {from_to} values (eg. 23-12-1999_23-11-55)\n"
                   f"{from_to} scope won't be specified")
@@ -90,7 +90,6 @@ class Logg:
                        f"{time_frame[from_to]['minute']} " \
                        f"{time_frame[from_to]['second']}"
         self.time_window[from_to] = datetime.strptime(from_to_time, '%d %m %Y %H %M %S')
-        print(self.time_window[from_to])
 
     def open_file(self):
         with open(self.file, 'r') as logg:
@@ -187,8 +186,3 @@ if __name__ == "__main__":
     logg = Logg(file, from_arg, to_arg)
     logg.check_arguments()
     logg.open_file()
-
-    print(logg.display_output())
-    print(logg.output)
-
-
