@@ -1,7 +1,7 @@
 # dook_parser
 
 
-Application was created with Python 3.8.1.
+Python 3.8.1 application created to parse gunicorn logs.
 
 *How to run the application:*
 
