@@ -186,3 +186,4 @@ if __name__ == "__main__":
     logg = Logg(file, from_arg, to_arg)
     logg.check_arguments()
     logg.open_file()
+    print(logg.display_output())
